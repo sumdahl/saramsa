@@ -1,4 +1,6 @@
-export const containerVariants = {
+import type { Variants, TargetAndTransition } from "motion";
+
+export const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -7,9 +9,9 @@ export const containerVariants = {
       delayChildren: 0.1,
     },
   },
-};
+} as const;
 
-export const itemVariants = {
+export const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
@@ -20,9 +22,9 @@ export const itemVariants = {
       duration: 0.8,
     },
   },
-};
+} as const;
 
-export const headingVariants = {
+export const headingVariants: Variants = {
   hidden: { opacity: 0, y: 30, scale: 0.95 },
   visible: {
     opacity: 1,
@@ -35,16 +37,16 @@ export const headingVariants = {
       mass: 0.8,
     },
   },
-};
+} as const;
 
-export const buttonVariants = {
+export const buttonVariants: TargetAndTransition = {
   scale: 1.05,
   transition: {
     type: "spring",
     stiffness: 300,
     damping: 10,
   },
-};
+} as const;
 
 export const headingDemoVariants = {
   hidden: {
