@@ -1,0 +1,5 @@
+onlyBuiltDependencies:
+  - '@clerk/shared'
+  - msgpackr-extract
+  - sharp
+  - unrs-resolver

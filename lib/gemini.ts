@@ -1,24 +1,26 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { SUMMARY_SYSTEM_PROMPT } from "@/utils/prompts";
 
-type ApiKey = string | undefined;
+const apiKey = process.env.GEMINI_SECRET_KEY;
 
-const apiKey: ApiKey = process.env.GEMINI_SECRET_KEY;
 if (!apiKey) {
   throw new Error("GEMINI_SECRET_KEY is not set");
 }
-export async function generateSummaryFromGemini(pdfText: string) {
-  const genAI = new GoogleGenerativeAI(apiKey as string);
+
+const client = new GoogleGenAI({
+  apiKey,
+});
+
+export async function generateSummaryFromGemini(
+  pdfText: string
+): Promise<string> {
+  if (!pdfText || pdfText.trim().length === 0) {
+    throw new Error("PDF text is empty");
+  }
 
   try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-001",
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 1500,
-      },
-    });
-    const prompt = {
+    const response = await client.models.generateContent({
+      model: "gemini-2.5-flash",
       contents: [
         {
           role: "user",
@@ -27,24 +29,30 @@ export async function generateSummaryFromGemini(pdfText: string) {
               text: SUMMARY_SYSTEM_PROMPT,
             },
             {
-              text: `Transofrm this document into an
-              engaging, easy-to-read summary with contextually
-              relevant emojis and proper
-              markdown formatting:\n\n${pdfText}`,
+              text: `Transform the following document into an engaging,
+easy-to-read summary with contextually relevant emojis and proper
+Markdown formatting:
+
+${pdfText}`,
             },
           ],
         },
       ],
-    };
+      config: {
+        temperature: 0.7,
+        maxOutputTokens: 1500,
+      },
+    });
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    if (!response.text()) {
-      throw new Error("No response from Gemini");
+    const text = response.text;
+
+    if (!text || text.trim().length === 0) {
+      throw new Error("Gemini returned an empty response");
     }
-    return response.text();
-  } catch (error: any) {
-    console.error("Gemini API Error", error);
-    throw error;
+
+    return text;
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+    throw new Error("Failed to generate summary from Gemini");
   }
 }
